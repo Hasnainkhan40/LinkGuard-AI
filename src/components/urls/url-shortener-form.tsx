@@ -4,17 +4,23 @@ import { UrlFormData, urlSchema } from "@/lib/types";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { shortenUrl } from "@/server/actions/urls/shorten-url";
-
+import { Card, CardContent } from "../ui/card";
+import { Copy } from "lucide-react";
 
 const UrlShortenerForm = () => {
-
-   const router = useRouter();
+  const router = useRouter();
   const pathname = usePathname();
 
   const [shortUrl, setShortUrl] = useState<string | null>(null);
@@ -24,7 +30,6 @@ const UrlShortenerForm = () => {
   const [showSignupDialog, setShowSignupDialog] = useState(false);
   const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false);
 
-
   const form = useForm<UrlFormData>({
     resolver: zodResolver(urlSchema),
     defaultValues: {
@@ -33,7 +38,7 @@ const UrlShortenerForm = () => {
     },
   });
 
-   const onSubmit = async (data: UrlFormData) => {
+  const onSubmit = async (data: UrlFormData) => {
     setIsLoading(true);
     setError(null);
     setShortUrl(null);
@@ -56,7 +61,6 @@ const UrlShortenerForm = () => {
         if (shortCodeMatch && shortCodeMatch[1]) {
           setShortCode(shortCodeMatch[1]);
         }
-
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
@@ -66,9 +70,24 @@ const UrlShortenerForm = () => {
     }
   };
 
+   const copyToClipboard = async () => {
+    if (!shortUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const showQrCode = () => {
+    if (!shortUrl || !shortCode) return;
+    setIsQrCodeModalOpen(true);
+  };
+
   return (
     <>
-       <div className="w-full max-w-2xl mx-auto">
+      <div className="w-full max-w-2xl mx-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-2">
@@ -99,6 +118,39 @@ const UrlShortenerForm = () => {
                 )}
               </Button>
             </div>
+
+            {error && (
+              <div className="p-3 bg-destructive/10 text-destructive rounded-md text-sm">
+                {error}
+              </div>
+            )}
+
+            {shortUrl && (
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm font-medium text-muted-foreground mb-2">
+                    Your shortened URL:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={shortUrl}
+                      readOnly
+                      className="font-medium"
+                    />
+                    <Button
+                      type="button"
+                      variant={"outline"}
+                      className="flex-shrink-0"
+                       onClick={copyToClipboard}
+                    >
+                      <Copy className="size-4 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </form>
         </Form>
       </div>
