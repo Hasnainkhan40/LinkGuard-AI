@@ -8,6 +8,13 @@
       "when": 1771986354551,
       "tag": "0000_sour_mulholland_black",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772012022872,
+      "tag": "0001_volatile_sersi",
+      "breakpoints": true
     }
   ]
 }
