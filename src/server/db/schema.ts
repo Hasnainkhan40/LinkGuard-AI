@@ -95,6 +95,8 @@ export const urls = pgTable("urls", {
   userId: varchar("user_id", { length: 255 }).references(() => users.id, {
     onDelete: "set null",
   }),
+  flagged: boolean("flagged").default(false).notNull(),
+  flagReason: text("flag_reason"),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
