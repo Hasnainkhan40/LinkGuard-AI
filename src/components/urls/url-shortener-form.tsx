@@ -1,24 +1,31 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { toast } from "sonner";
-import { AlertTriangle, Copy, QrCode } from "lucide-react";
-
 import { UrlFormData, urlSchema } from "@/lib/types";
-import { shortenUrl } from "@/server/actions/urls/shorten-url";
-
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { shortenUrl } from "@/server/actions/urls/shorten-url";
 import { Card, CardContent } from "../ui/card";
+import { AlertTriangle, Copy, QrCode } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { QRCodeModal } from "../modals/qr-code-modal";
+import { boolean } from "drizzle-orm/gel-core";
+import { toast } from "sonner";
+import { SignupSuggestionDialog } from "../dialogs/signup-suggestion-dialog";
 
 export function UrlShortenerForm() {
   const { data: session } = useSession();
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,27 +35,11 @@ export function UrlShortenerForm() {
   const [error, setError] = useState<string | null>(null);
   const [showSignupDialog, setShowSignupDialog] = useState(false);
   const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false);
-
   const [flaggedInfo, setFlaggedInfo] = useState<{
     flagged: boolean;
     reason: string | null;
     message: string | undefined;
   } | null>(null);
-
-  // ✅ Safe base URL (never touches window during SSR/render)
-  const [baseUrl, setBaseUrl] = useState<string>(
-    process.env.NEXT_PUBLIC_APP_URL ?? ""
-  );
-
-  useEffect(() => {
-    // Only runs in browser
-    if (!baseUrl) setBaseUrl(window.location.origin);
-  }, [baseUrl]);
-
-  const baseUrlForDisplay = useMemo(() => {
-    // fallback for display only
-    return (baseUrl || "http://localhost:3000").replace(/\/$/, "");
-  }, [baseUrl]);
 
   const form = useForm<UrlFormData>({
     resolver: zodResolver(urlSchema),
@@ -69,17 +60,19 @@ export function UrlShortenerForm() {
       const formData = new FormData();
       formData.append("url", data.url);
 
+      // If a custom code is provided, append it to the form data
       if (data.customCode && data.customCode.trim() !== "") {
         formData.append("customCode", data.customCode.trim());
       }
 
       const response = await shortenUrl(formData);
-
       if (response.success && response.data) {
         setShortUrl(response.data.shortUrl);
-
+        // Extract the short code from the short URL
         const shortCodeMatch = response.data.shortUrl.match(/\/r\/([^/]+)$/);
-        if (shortCodeMatch?.[1]) setShortCode(shortCodeMatch[1]);
+        if (shortCodeMatch && shortCodeMatch[1]) {
+          setShortCode(shortCodeMatch[1]);
+        }
 
         if (response.data.flagged) {
           setFlaggedInfo({
@@ -103,9 +96,9 @@ export function UrlShortenerForm() {
       if (!session?.user) {
         setShowSignupDialog(true);
       }
-    } catch (err) {
+    } catch (error) {
       setError("An error occurred. Please try again.");
-      console.error(err);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +106,11 @@ export function UrlShortenerForm() {
 
   const copyToClipboard = async () => {
     if (!shortUrl) return;
+
     try {
       await navigator.clipboard.writeText(shortUrl);
-      toast.success("Copied to clipboard");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to copy");
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -142,14 +134,13 @@ export function UrlShortenerForm() {
                       <Input
                         placeholder="Paste your long URL here"
                         {...field}
-                        disabled={isLoading}
+                        disabled={false}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <>
@@ -170,7 +161,9 @@ export function UrlShortenerForm() {
                   <FormControl>
                     <div className="flex items-center">
                       <span className="text-sm text-muted-foreground mr-2">
-                        {baseUrlForDisplay}/r/
+                        {process.env.NEXT_PUBLIC_APP_URL ||
+                          window.location.origin}
+                        /r/
                       </span>
                       <Input
                         placeholder="Custom code (optional)"
@@ -199,7 +192,6 @@ export function UrlShortenerForm() {
                   <p className="text-sm font-medium text-muted-foreground mb-2">
                     Your shortened URL:
                   </p>
-
                   <div className="flex items-center gap-2">
                     <Input
                       type="text"
@@ -207,20 +199,18 @@ export function UrlShortenerForm() {
                       readOnly
                       className="font-medium"
                     />
-
                     <Button
                       type="button"
-                      variant="outline"
+                      variant={"outline"}
                       className="flex-shrink-0"
                       onClick={copyToClipboard}
                     >
                       <Copy className="size-4 mr-1" />
                       Copy
                     </Button>
-
                     <Button
                       type="button"
-                      variant="outline"
+                      variant={"outline"}
                       className="flex-shrink-0"
                       onClick={showQrCode}
                     >
@@ -228,7 +218,7 @@ export function UrlShortenerForm() {
                     </Button>
                   </div>
 
-                  {flaggedInfo?.flagged && (
+                  {flaggedInfo && flaggedInfo.flagged && (
                     <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
                       <div className="flex items-start gap-2">
                         <AlertTriangle className="size-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
@@ -240,11 +230,10 @@ export function UrlShortenerForm() {
                             {flaggedInfo.message ||
                               "This URL will be reviewed by an administrator before it becomes fully active."}
                           </p>
-
                           {flaggedInfo.reason && (
                             <p className="text-sm mt-2 text-yellow-600 dark:text-yellow-400">
                               <span className="font-medium">Reason:</span>{" "}
-                              {flaggedInfo.reason}
+                              {flaggedInfo.reason || "Unknown reason"}
                             </p>
                           )}
                         </div>
@@ -258,12 +247,11 @@ export function UrlShortenerForm() {
         </Form>
       </div>
 
-      {/* SignupSuggestionDialog re-enable later if needed */}
-      {/* <SignupSuggestionDialog
+      <SignupSuggestionDialog
         isOpen={showSignupDialog}
         onOpenChange={setShowSignupDialog}
         shortUrl={shortUrl || ""}
-      /> */}
+      />
 
       {shortUrl && shortCode && (
         <QRCodeModal
