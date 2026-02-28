@@ -19,6 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import { ThemeToggle } from "../ui/theme-toggle";
 // import { ThemeToggle } from "../ui/theme-toggle";
 
 export function Header() {
@@ -34,7 +35,7 @@ export function Header() {
                    
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-2">
-          {/* <ThemeToggle /> */}
+          <ThemeToggle />
           <Button variant={"ghost"} size={"sm"} asChild>
             <Link href={"/stats"} className="flex items-center gap-1">
               <BarChart3Icon className="size-4" />
