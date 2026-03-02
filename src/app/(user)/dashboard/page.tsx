@@ -28,7 +28,7 @@ export default async function DashboardPage() {
     <>
       <h1 className="text-3xl font-bold mb-8 text-center">Dashboard</h1>
 
-      <div className="grid gap-8">
+      <div className="grid gap-8 max-w-5xl mx-auto">
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Create New Short URL</CardTitle>
