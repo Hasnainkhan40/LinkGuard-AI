@@ -123,16 +123,18 @@ export async function getAllUrls(
     // apply sorting
     if (sortBy && sortOrder) {
       transformedUrls.sort((a, b) => {
-        let valueA: any;
-        let valueB: any;
+        // Values we sort on can be strings, numbers, or dates
+        type SortValue = string | number | Date;
+        let valueA: SortValue;
+        let valueB: SortValue;
 
         // handle sorting by user name
         if (sortBy === "userName") {
           valueA = a.userName || a.userEmail || "";
           valueB = b.userName || b.userEmail || "";
         } else {
-          valueA = a[sortBy];
-          valueB = b[sortBy];
+          valueA = a[sortBy] as SortValue;
+          valueB = b[sortBy] as SortValue;
         }
 
         // handle null values

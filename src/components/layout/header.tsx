@@ -11,9 +11,8 @@ import {
   Menu,
   UserPlus,
 } from "lucide-react";
-import {                   
+import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -23,7 +22,7 @@ import { ThemeToggle } from "../ui/theme-toggle";
 // import { ThemeToggle } from "../ui/theme-toggle";
 
 export function Header() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const isAuthenticated = status === "authenticated";
 
   return (

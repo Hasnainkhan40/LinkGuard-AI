@@ -3,7 +3,6 @@
 import { ApiResponse } from "@/lib/types";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
-import { urls } from "@/server/db/schema";
 
 export async function getUserUrls(userId: string): Promise<
   ApiResponse<

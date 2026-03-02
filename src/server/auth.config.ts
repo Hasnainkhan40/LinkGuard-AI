@@ -6,7 +6,6 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { users } from "./db/schema";
 import bcrypt from "bcryptjs";
-import { JWT } from "next-auth/jwt";
 import { db } from "./db";
 
 // extend the types to include role
@@ -23,11 +22,6 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    role?: "user" | "admin";
-  }
-}
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.AUTH_SECRET,
@@ -67,7 +61,7 @@ export const authConfig: NextAuthConfig = {
     session: async ({ session, token }) => {
       if (token) {
         session.user.id = token.id as string;
-        session.user.role = token.role;
+        session.user.role = token.role as "user" | "admin" | undefined;
       }
       return session;
     },
