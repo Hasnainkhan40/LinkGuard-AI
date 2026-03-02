@@ -20,26 +20,17 @@ export default async function Home() {
 
         <div className="mt-8 flex justify-center gap-4">
           {session?.user ? (
-            <Link
-              href="/dashboard"
-              className="inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-background hover:opacity-90"
-            >
-              Go to Dashboard
-            </Link>
+            <Button asChild>
+              <Link href="/dashboard">Go to Dashboard</Link>
+            </Button>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="inline-block rounded-md border border-muted-foreground px-4 py-2 text-sm font-medium hover:bg-muted/10"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="inline-block rounded-md bg-secondary px-4 py-2 text-sm font-medium text-background hover:opacity-90"
-              >
-                Register
-              </Link>
+              <Button variant="outline" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link href="/register">Register</Link>
+              </Button>
             </>
           )}
         </div>
