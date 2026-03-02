@@ -18,7 +18,7 @@ export default async function Home() {
 
         <UrlShortenerForm />
 
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex justify-center gap-4">
           {session?.user ? (
             <Link
               href="/dashboard"
@@ -27,12 +27,20 @@ export default async function Home() {
               Go to Dashboard
             </Link>
           ) : (
-            <Link
-              href="/login"
-              className="inline-block rounded-md border border-muted-foreground px-4 py-2 text-sm font-medium hover:bg-muted/10"
-            >
-              Login
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className="inline-block rounded-md border border-muted-foreground px-4 py-2 text-sm font-medium hover:bg-muted/10"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="inline-block rounded-md bg-secondary px-4 py-2 text-sm font-medium text-background hover:opacity-90"
+              >
+                Register
+              </Link>
+            </>
           )}
         </div>
       </div>
