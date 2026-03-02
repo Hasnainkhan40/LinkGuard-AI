@@ -26,7 +26,14 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <h1 className="text-3xl font-bold mb-8 text-center">Dashboard</h1>
+      <div className="flex flex-col items-center">
+        <h1 className="text-3xl font-bold mb-2 text-center">Dashboard</h1>
+        {session?.user.role && (
+          <p className="text-sm text-muted-foreground">
+            Your role: <span className="font-medium">{session.user.role}</span>
+          </p>
+        )}
+      </div>
 
       <div className="grid gap-8 max-w-5xl mx-auto">
         <Card className="shadow-sm">
@@ -54,17 +61,16 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {process.env.NODE_ENV === "development" &&
-          session?.user.role === "admin" && (
-            <div className="text-center mt-4">
-              <Link
-                href={"/admin"}
-                className="text-sm text-muted-foreground hover:text-primary underline"
-              >
-                Admin Tools
-              </Link>
-            </div>
-          )}
+        {session?.user.role === "admin" && (
+          <div className="text-center mt-4">
+            <Link
+              href="/admin"
+              className="text-sm text-muted-foreground hover:text-primary underline"
+            >
+              Admin Tools
+            </Link>
+          </div>
+        )}
       </div>
     </>
   );
